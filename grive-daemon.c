@@ -198,10 +198,10 @@ int main()
              syslog (LOG_WARNING, "grive-daemon could not switch to ~/Google Drive.");
              return EXIT_FAILURE;
           }
-          system ("notify-send grive-daemon \"Starting Google Drive sync...\" -i ~/Downloads/Logo_of_Google_Drive.svg");
+          system ("notify-send grive-daemon \"Starting Google Drive sync...\"");
           system ("grive");
           syslog (LOG_INFO, "grive-daemon performed a syncronization.");
-          system ("notify-send grive-daemon \"Google Drive sync complete.\" -i ~/Downloads/Logo_of_Google_Drive.svg");
+          system ("notify-send grive-daemon \"Google Drive sync complete.\"");
         }
         sleep (3);
     }
