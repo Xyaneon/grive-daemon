@@ -45,7 +45,7 @@ typedef int bool;
 #define true 1
 #define false 0
 
-static void skeleton_daemon()
+static void daemonize()
 {
     pid_t pid;
 
@@ -156,7 +156,7 @@ int main()
     struct passwd *pw = getpwuid(getuid());
     char *gd_dir = strcat(pw->pw_dir, "/Google Drive");
     
-    skeleton_daemon();
+    daemonize();
     
     syslog (LOG_NOTICE, "grive-daemon started.");
     
