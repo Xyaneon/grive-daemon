@@ -115,15 +115,9 @@ static bool get_event (int fd, const char * target)
        strcpy (action, pevent->name);
     else
        strcpy (action, target);
-
-    if (pevent->mask & IN_ACCESS) 
-       strcat(action, " was read");
+    
     if (pevent->mask & IN_ATTRIB) 
        strcat(action, " Metadata changed");
-    if (pevent->mask & IN_CLOSE_WRITE) 
-       strcat(action, " opened for writing was closed");
-    if (pevent->mask & IN_CLOSE_NOWRITE) 
-       strcat(action, " not opened for writing was closed");
     if (pevent->mask & IN_CREATE) 
        strcat(action, " created in watched directory");
     if (pevent->mask & IN_DELETE) 
@@ -138,9 +132,6 @@ static bool get_event (int fd, const char * target)
        strcat(action, " moved out of watched directory");
     if (pevent->mask & IN_MOVED_TO) 
        strcat(action, " moved into watched directory");
-    if (pevent->mask & IN_OPEN) 
-       strcat(action, " was opened");
-    
     
     // Ignore hidden grive files.
     if (pevent->len) {
