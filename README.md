@@ -9,4 +9,4 @@ After setting up grive (you need to create `~/Google Drive` yourself), just run 
 
 This daemon is a rushed hack job, and you're nuts if you're expecting a polished product. I never made anything similar to this before. YOU'VE BEEN WARNED!
 
-[1] https://github.com/Grive/grive
+[1]: https://github.com/Grive/grive
