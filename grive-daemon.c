@@ -51,8 +51,6 @@ static void skeleton_daemon()
 
     /* Fork off the parent process */
     pid = fork();
-
-    /* An error occurred */
     if (pid < 0)
         exit(EXIT_FAILURE);
 
@@ -71,16 +69,13 @@ static void skeleton_daemon()
 
     /* Fork off for the second time*/
     pid = fork();
-
-    /* An error occurred */
     if (pid < 0)
         exit(EXIT_FAILURE);
 
     /* Success: Let the parent terminate */
     if (pid > 0)
         exit(EXIT_SUCCESS);
-
-    /* Set new file permissions */
+    
     umask(0);
 
     /* Change the working directory to the root directory */
@@ -93,8 +88,7 @@ static void skeleton_daemon()
     {
         close (x);
     }
-
-    /* Open the log file */
+    
     openlog ("grive-daemon", LOG_PID, LOG_DAEMON);
 }
 
@@ -142,7 +136,6 @@ static bool get_event (int fd, const char * target)
     }
     
     i += sizeof(struct inotify_event) + pevent->len;
-    //sync_required = true;
   }
   
   return sync_required;
@@ -159,7 +152,7 @@ int main()
     char target[FILENAME_MAX];
     int result;
     int fd;
-    int wd;   /* watch descriptor */
+    int wd;
     struct passwd *pw = getpwuid(getuid());
     char *gd_dir = strcat(pw->pw_dir, "/Google Drive");
     
