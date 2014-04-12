@@ -77,10 +77,8 @@ static void daemonize()
         exit(EXIT_SUCCESS);
     
     umask(0);
-
-    /* Change the working directory to the root directory */
-    /* or another appropriated directory */
-    chdir("/");
+    
+    openlog ("grive-daemon", LOG_PID, LOG_DAEMON);
 
     /* Close all open file descriptors */
     int x;
@@ -88,8 +86,6 @@ static void daemonize()
     {
         close (x);
     }
-    
-    openlog ("grive-daemon", LOG_PID, LOG_DAEMON);
 }
 
 static bool get_event (int fd, const char * target)
@@ -160,6 +156,18 @@ int main()
     
     syslog (LOG_NOTICE, "grive-daemon started.");
     
+    if (chdir(gd_dir) < 0)
+    {
+        syslog (LOG_WARNING, "grive-daemon could not switch to ~/Google Drive.");
+        exit(EXIT_FAILURE);
+    }
+    
+    // Initial syncronization in case stuff changed before starting.
+    system ("notify-send grive-daemon \"Starting Google Drive sync...\"");
+    system ("grive");
+    syslog (LOG_INFO, "grive-daemon performed an initial syncronization.");
+    system ("notify-send grive-daemon \"Google Drive sync complete.\"");
+    
     fd = inotify_init();
     if (fd < 0) {
       handle_error (errno);
@@ -177,17 +185,12 @@ int main()
     {
         if (get_event(fd, target))
         {
-          if(chdir(gd_dir) < 0 )  
-          {
-             syslog (LOG_WARNING, "grive-daemon could not switch to ~/Google Drive.");
-             return EXIT_FAILURE;
-          }
           system ("notify-send grive-daemon \"Starting Google Drive sync...\"");
           system ("grive");
           syslog (LOG_INFO, "grive-daemon performed a syncronization.");
           system ("notify-send grive-daemon \"Google Drive sync complete.\"");
         }
-        sleep (3);
+        sleep (2);
     }
     
     inotify_rm_watch(fd, wd);
