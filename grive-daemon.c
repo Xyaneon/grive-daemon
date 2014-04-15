@@ -107,21 +107,21 @@ static bool get_event (int fd, const char * target)
        strcpy (action, target);
     
     if (pevent->mask & IN_ATTRIB) 
-       strcat(action, " Metadata changed");
+       strcat(action, "'s metadata changed");
     if (pevent->mask & IN_CREATE) 
-       strcat(action, " created in watched directory");
+       strcat(action, " was created in a watched directory");
     if (pevent->mask & IN_DELETE) 
-       strcat(action, " deleted from watched directory");
+       strcat(action, " was deleted in a watched directory");
     if (pevent->mask & IN_DELETE_SELF) 
-       strcat(action, "Watched file/directory was itself deleted");
+       strcat(action, ", the watched file/directory, was itself deleted");
     if (pevent->mask & IN_MODIFY) 
        strcat(action, " was modified");
     if (pevent->mask & IN_MOVE_SELF) 
-       strcat(action, "Watched file/directory was itself moved");
+       strcat(action, ", the watched file/directory, was itself moved");
     if (pevent->mask & IN_MOVED_FROM) 
-       strcat(action, " moved out of watched directory");
+       strcat(action, " was moved out of a watched directory");
     if (pevent->mask & IN_MOVED_TO) 
-       strcat(action, " moved into watched directory");
+       strcat(action, " was moved into a watched directory");
     
     // Ignore hidden grive files.
     if (pevent->len) {
