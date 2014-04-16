@@ -51,6 +51,8 @@ using std::endl;
 /* Allow for 1024 simultaneous events */
 #define BUFF_SIZE ((sizeof(struct inotify_event)+FILENAME_MAX)*1024)
 
+#define WATCH_FLAGS (IN_ATTRIB | IN_CREATE | IN_DELETE | IN_DELETE_SELF | IN_MODIFY | IN_MOVE_SELF | IN_MOVED_FROM | IN_MOVED_TO)
+
 typedef int bool;
 #define true 1
 #define false 0
@@ -151,6 +153,7 @@ static void daemonize()
 
 static bool get_event (int fd, const char * target)
 {
+  Watch watch;
   ssize_t len, i = 0;
   char action[81+FILENAME_MAX] = {0};
   char buff[BUFF_SIZE] = {0};
@@ -235,7 +238,7 @@ int main()
       return EXIT_FAILURE;
     }
 
-    wd = inotify_add_watch (fd, gd_dir, IN_ATTRIB | IN_CREATE | IN_DELETE | IN_DELETE_SELF | IN_MODIFY | IN_MOVE_SELF | IN_MOVED_FROM | IN_MOVED_TO);
+    wd = inotify_add_watch (fd, gd_dir, WATCH_FLAGS);
     if (wd < 0) {
       syslog (LOG_WARNING, "gd_dir = %s.", gd_dir);
       handle_error (errno);
