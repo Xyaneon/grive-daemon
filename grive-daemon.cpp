@@ -53,10 +53,6 @@ using std::endl;
 
 #define WATCH_FLAGS (IN_ATTRIB | IN_CREATE | IN_DELETE | IN_DELETE_SELF | IN_MODIFY | IN_MOVE_SELF | IN_MOVED_FROM | IN_MOVED_TO)
 
-typedef int bool;
-#define true 1
-#define false 0
-
 class Watch {
     struct wd_elem {
         int pd;
