@@ -7,7 +7,7 @@ This project is dependent on you having already installed [grive][1]. On an Ubun
 
 #Build#
 
-You need to make sure grive and notify-osd are already installed on your system. Go into your cloned `grive-daemon` directory and run `gcc -o grive-daemon grive-daemon.c` to build.
+You need to make sure grive and notify-osd are already installed on your system. Go into your cloned `grive-daemon` directory and run `g++ -o grive-daemon grive-daemon.cpp` to build.
 
 After setting up grive (you need to create `~/Google Drive` yourself), just run this and it should automatically sync local changes to your Google Drive folder for you.
 
