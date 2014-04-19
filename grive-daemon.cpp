@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string>
 #include <map>
 #include <dirent.h>
+#include "daemon.h"
 
 using std::map;
 using std::string;
@@ -136,49 +137,6 @@ void DirectoryReader::parseDirectory(string readingDirectory, int fd, Watch& wat
   }
   else
     syslog (LOG_WARNING, "Couldn't open the directory %s.", readingDirectory.c_str());
-}
-
-static void daemonize()
-{
-    pid_t pid;
-
-    /* Fork off the parent process */
-    pid = fork();
-    if (pid < 0)
-        exit(EXIT_FAILURE);
-
-    /* Success: Let the parent terminate */
-    if (pid > 0)
-        exit(EXIT_SUCCESS);
-
-    /* On success: The child process becomes session leader */
-    if (setsid() < 0)
-        exit(EXIT_FAILURE);
-
-    /* Catch, ignore and handle signals */
-    //TODO: Implement a working signal handler */
-    signal(SIGCHLD, SIG_IGN);
-    signal(SIGHUP, SIG_IGN);
-
-    /* Fork off for the second time*/
-    pid = fork();
-    if (pid < 0)
-        exit(EXIT_FAILURE);
-
-    /* Success: Let the parent terminate */
-    if (pid > 0)
-        exit(EXIT_SUCCESS);
-    
-    umask(0);
-    
-    openlog ("grive-daemon", LOG_PID, LOG_DAEMON);
-
-    /* Close all open file descriptors */
-    int x;
-    for (x = sysconf(_SC_OPEN_MAX); x>0; x--)
-    {
-        close (x);
-    }
 }
 
 static bool get_event (int fd, const char * target, Watch& watch)

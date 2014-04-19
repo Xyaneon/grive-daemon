@@ -15,8 +15,8 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-all:
-	g++ -o grive-daemon grive-daemon.cpp
+all: grive-daemon.cpp daemon.h
+	g++ -o grive-daemon grive-daemon.cpp daemon.h
 
 install:
 	sudo mkdir /usr/local/bin/grive-daemon/
