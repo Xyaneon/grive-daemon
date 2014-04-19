@@ -29,22 +29,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    http://stackoverflow.com/a/11097815
    */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
 #include <pwd.h>
-#include <fcntl.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/inotify.h>
-#include <iostream>
-#include <string>
-#include <map>
-#include <dirent.h>
 #include "daemon.h"
 #include "watch.h"
 #include "recursive_watch.h"
