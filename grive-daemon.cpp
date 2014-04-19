@@ -47,41 +47,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <dirent.h>
 #include "daemon.h"
 #include "watch.h"
+#include "recursive_watch.h"
 
 /* Allow for 1024 simultaneous events */
 #define BUFF_SIZE ((sizeof(struct inotify_event)+FILENAME_MAX)*1024)
-#define WATCH_FLAGS (IN_ATTRIB | IN_CREATE | IN_DELETE | IN_DELETE_SELF | IN_MODIFY | IN_MOVE_SELF | IN_MOVED_FROM | IN_MOVED_TO)
-
-int initialRecursiveWd()
-{
-  static int wd = -1;
-  wd--;
-  return wd;
-}
-
-struct DirectoryReader
-{
-    static void parseDirectory(string readingDirectory, int fd, Watch& watch);
-};
-
-void DirectoryReader::parseDirectory(string readingDirectory, int fd, Watch& watch)
-{
-  if (DIR *dp = opendir(readingDirectory.c_str()))
-  {
-    //cout << string(level, ' ') << readingDirectory << endl;
-    while (struct dirent *ep = readdir(dp))
-      if (ep->d_type == DT_DIR && ep->d_name[0] != '.')
-      {
-        int wd;
-        wd = inotify_add_watch(fd, readingDirectory.c_str(), WATCH_FLAGS);
-        watch.insert(initialRecursiveWd(), readingDirectory.c_str(), wd);
-        parseDirectory(readingDirectory + "/" + ep->d_name, fd, watch);
-      }
-    closedir(dp);
-  }
-  else
-    syslog (LOG_WARNING, "Couldn't open the directory %s.", readingDirectory.c_str());
-}
 
 static bool get_event (int fd, const char * target, Watch& watch)
 {

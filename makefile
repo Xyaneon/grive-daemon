@@ -18,8 +18,8 @@
 all: grive-daemon.o watch.o
 	g++ -o grive-daemon grive-daemon.o watch.o
 
-grive-daemon.o: grive-daemon.cpp daemon.h
-	g++ -c grive-daemon.cpp daemon.h
+grive-daemon.o: grive-daemon.cpp daemon.h recursive_watch.h
+	g++ -c grive-daemon.cpp daemon.h recursive_watch.h
 
 watch.o: watch.cpp watch.h
 	g++ -c watch.cpp watch.h
