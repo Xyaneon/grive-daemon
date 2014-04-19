@@ -15,8 +15,14 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-all: grive-daemon.cpp daemon.h
-	g++ -o grive-daemon grive-daemon.cpp daemon.h
+all: grive-daemon.o watch.o
+	g++ -o grive-daemon grive-daemon.o watch.o
+
+grive-daemon.o: grive-daemon.cpp daemon.h
+	g++ -c grive-daemon.cpp daemon.h
+
+watch.o: watch.cpp watch.h
+	g++ -c watch.cpp watch.h
 
 install:
 	sudo mkdir /usr/local/bin/grive-daemon/
@@ -26,4 +32,4 @@ uninstall:
 	sudo rm -rf /usr/local/bin/grive-daemon/
 
 clean:
-	rm grive-daemon
+	rm -rf *.o *.gch grive-daemon
