@@ -5,11 +5,19 @@ A daemon to watch and sync your `~/Google Drive` folder on Linux by calling griv
 
 This project is dependent on you having already installed [grive][1]. On an Ubuntu system (where this is supported), you should probably install it from the Ubuntu Software Center.
 
+#Dependencies#
+
+- grive
+- make
+- notify-osd
+
 #Build#
 
-You need to make sure grive and notify-osd are already installed on your system. Go into your cloned `grive-daemon` directory and run `g++ -o grive-daemon grive-daemon.cpp` to build.
+Go into your cloned `grive-daemon` directory and run `make` to build. To rebuild later, just run `make clean` followed by another `make`.
 
-After setting up grive (you need to create `~/Google Drive` yourself), just run this and it should automatically sync local changes to your Google Drive folder for you.
+#How to Run#
+
+After setting up grive (you need to create `~/Google Drive` yourself), just run the grive-daemon executable and it should automatically sync local changes to your Google Drive folder for you.
 
 This daemon is a rushed hack job, and you're nuts if you're expecting a polished product. I never made anything similar to this before. YOU'VE BEEN WARNED!
 
