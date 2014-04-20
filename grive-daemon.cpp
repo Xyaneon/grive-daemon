@@ -29,157 +29,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    http://stackoverflow.com/a/11097815
    */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <syslog.h>
 #include <pwd.h>
-#include <fcntl.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/inotify.h>
-#include <iostream>
-#include <string>
-#include <map>
-#include <dirent.h>
-
-using std::map;
-using std::string;
-using std::cout;
-using std::endl;
+#include "daemon.h"
+#include "watch.h"
+#include "recursive_watch.h"
 
 /* Allow for 1024 simultaneous events */
 #define BUFF_SIZE ((sizeof(struct inotify_event)+FILENAME_MAX)*1024)
-
-#define WATCH_FLAGS (IN_ATTRIB | IN_CREATE | IN_DELETE | IN_DELETE_SELF | IN_MODIFY | IN_MOVE_SELF | IN_MOVED_FROM | IN_MOVED_TO)
-
-int initialRecursiveWd()
-{
-  static int wd = -1;
-  wd--;
-  return wd;
-}
-
-class Watch {
-    struct wd_elem {
-        int pd;
-        string name;
-        bool operator() (const wd_elem &l, const wd_elem &r) const
-            { return l.pd < r.pd ? true : l.pd == r.pd && l.name < r.name ? true : false; }
-    };
-    map<int, wd_elem> watch;
-    map<wd_elem, int, wd_elem> rwatch;
-public:
-    // Insert event information, used to create new watch, into Watch object.
-    void insert( int pd, const string &name, int wd ) {
-        wd_elem elem = {pd, name};
-        watch[wd] = elem;
-        rwatch[elem] = wd;
-    }
-    // Erase watch specified by pd (parent watch descriptor) and name from watch list.
-    // Returns full name (for display etc), and wd, which is required for inotify_rm_watch.
-    string erase( int pd, const string &name, int *wd ) {
-        wd_elem pelem = {pd, name};
-        *wd = rwatch[pelem];
-        rwatch.erase(pelem);
-        const wd_elem &elem = watch[*wd];
-        string dir = elem.name;
-        watch.erase(*wd);
-        return dir;
-    }
-    // Given a watch descriptor, return the full directory name as string. Recurses up parent WDs to assemble name, 
-    // an idea borrowed from Windows change journals.
-    string get( int wd ) {
-        const wd_elem &elem = watch[wd];
-        return elem.pd <= -1 ? elem.name : this->get(elem.pd) + "/" + elem.name;
-    }
-    // Given a parent wd and name (provided in IN_DELETE events), return the watch descriptor.
-    // Main purpose is to help remove directories from watch list.
-    int get( int pd, string name ) {
-        wd_elem elem = {pd, name};
-        return rwatch[elem];
-    }
-    void cleanup( int fd ) {
-        for (map<int, wd_elem>::iterator wi = watch.begin(); wi != watch.end(); wi++) {
-            inotify_rm_watch( fd, wi->first );
-            watch.erase(wi);
-        }
-        rwatch.clear();
-    }
-    void stats() {
-        cout << "number of watches=" << watch.size() << " & reverse watches=" << rwatch.size() << endl;
-    }
-};
-
-struct DirectoryReader
-{
-    static void parseDirectory(string readingDirectory, int fd, Watch& watch);
-};
-
-void DirectoryReader::parseDirectory(string readingDirectory, int fd, Watch& watch)
-{
-  if (DIR *dp = opendir(readingDirectory.c_str()))
-  {
-    //cout << string(level, ' ') << readingDirectory << endl;
-    while (struct dirent *ep = readdir(dp))
-      if (ep->d_type == DT_DIR && ep->d_name[0] != '.')
-      {
-        int wd;
-        wd = inotify_add_watch(fd, readingDirectory.c_str(), WATCH_FLAGS);
-        watch.insert(initialRecursiveWd(), readingDirectory.c_str(), wd);
-        parseDirectory(readingDirectory + "/" + ep->d_name, fd, watch);
-      }
-    closedir(dp);
-  }
-  else
-    syslog (LOG_WARNING, "Couldn't open the directory %s.", readingDirectory.c_str());
-}
-
-static void daemonize()
-{
-    pid_t pid;
-
-    /* Fork off the parent process */
-    pid = fork();
-    if (pid < 0)
-        exit(EXIT_FAILURE);
-
-    /* Success: Let the parent terminate */
-    if (pid > 0)
-        exit(EXIT_SUCCESS);
-
-    /* On success: The child process becomes session leader */
-    if (setsid() < 0)
-        exit(EXIT_FAILURE);
-
-    /* Catch, ignore and handle signals */
-    //TODO: Implement a working signal handler */
-    signal(SIGCHLD, SIG_IGN);
-    signal(SIGHUP, SIG_IGN);
-
-    /* Fork off for the second time*/
-    pid = fork();
-    if (pid < 0)
-        exit(EXIT_FAILURE);
-
-    /* Success: Let the parent terminate */
-    if (pid > 0)
-        exit(EXIT_SUCCESS);
-    
-    umask(0);
-    
-    openlog ("grive-daemon", LOG_PID, LOG_DAEMON);
-
-    /* Close all open file descriptors */
-    int x;
-    for (x = sysconf(_SC_OPEN_MAX); x>0; x--)
-    {
-        close (x);
-    }
-}
 
 static bool get_event (int fd, const char * target, Watch& watch)
 {
