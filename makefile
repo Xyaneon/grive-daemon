@@ -28,7 +28,7 @@ install:
 	sudo cp grive-daemon /usr/local/bin/
 
 uninstall:
-	sudo rm -rf /usr/local/bin/
+	sudo rm -f /usr/local/bin/grive-daemon
 
 clean:
 	rm -rf *.o *.gch grive-daemon
