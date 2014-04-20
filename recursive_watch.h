@@ -44,13 +44,13 @@ void DirectoryReader::parseDirectory(string readingDirectory, int fd, Watch& wat
 {
   if (DIR *dp = opendir(readingDirectory.c_str()))
   {
+  	int wd;
+  	wd = inotify_add_watch(fd, readingDirectory.c_str(), WATCH_FLAGS);
+    watch.insert(initialRecursiveWd(), readingDirectory.c_str(), wd);
     //cout << string(level, ' ') << readingDirectory << endl;
     while (struct dirent *ep = readdir(dp))
       if (ep->d_type == DT_DIR && ep->d_name[0] != '.')
       {
-        int wd;
-        wd = inotify_add_watch(fd, readingDirectory.c_str(), WATCH_FLAGS);
-        watch.insert(initialRecursiveWd(), readingDirectory.c_str(), wd);
         parseDirectory(readingDirectory + "/" + ep->d_name, fd, watch);
       }
     closedir(dp);
