@@ -106,7 +106,7 @@ static bool get_event (int fd, const char * target, Watch& watch)
     // Ignore hidden grive files.
     if (pevent->len) {
       if ((strcmp (pevent->name, ".grive") != 0) && (strcmp (pevent->name, ".grive_state") != 0)) {
-        syslog (LOG_INFO, "grive-daemon noticed %s.", action);
+        syslog (LOG_INFO, "Noticed %s.", action);
         sync_required = true;
       }
     }
@@ -119,7 +119,7 @@ static bool get_event (int fd, const char * target, Watch& watch)
 
 void handle_error (int error)
 {
-  syslog (LOG_WARNING, "grive-daemon needed to handle error %s.", strerror(error));
+  syslog (LOG_WARNING, "Needed to handle error %s.", strerror(error));
   fprintf (stderr, "Error: %s\n", strerror(error));
 }
 
@@ -133,19 +133,20 @@ int main()
     
     daemonize();
     
-    syslog (LOG_NOTICE, "grive-daemon started.");
+    syslog (LOG_NOTICE, "Started.");
     
     if (chdir(gd_dir) < 0)
     {
-        syslog (LOG_WARNING, "grive-daemon could not switch to ~/Google Drive.");
+        syslog (LOG_WARNING, "Could not switch to ~/Google Drive.");
+        system ("notify-send \"Google Drive sync failed\" \"grive-daemon could not switch to ~/Google Drive.\"");
         exit(EXIT_FAILURE);
     }
     
     // Initial syncronization in case stuff changed before starting.
-    system ("notify-send grive-daemon \"Starting Google Drive sync...\"");
+    system ("notify-send \"Google Drive sync started\" \"Ensuring both local and remote are up-to-date...\"");
     system ("grive");
-    syslog (LOG_INFO, "grive-daemon performed an initial syncronization.");
-    system ("notify-send grive-daemon \"Google Drive sync complete.\"");
+    syslog (LOG_INFO, "Performed an initial syncronization.");
+    system ("notify-send \"Google Drive sync complete\" \"Local and remote are now both synced.\"");
     
     fd = inotify_init();
     if (fd < 0) {
@@ -157,6 +158,7 @@ int main()
     if (wd < 0) {
       syslog (LOG_WARNING, "gd_dir = %s.", gd_dir);
       handle_error (errno);
+      system ("notify-send \"Google Drive sync failed\" \"grive-daemon encountered an error and exited.\"");
       return EXIT_FAILURE;
     }
     watch.insert(-1, gd_dir, wd);
@@ -167,10 +169,10 @@ int main()
     {
         if (get_event(fd, target, watch))
         {
-          system ("notify-send grive-daemon \"Starting Google Drive sync...\"");
+          system ("notify-send \"Google Drive sync started\" \"Syncing recent local changes with remote...\"");
           system ("grive");
-          syslog (LOG_INFO, "grive-daemon performed a syncronization.");
-          system ("notify-send grive-daemon \"Google Drive sync complete.\"");
+          syslog (LOG_INFO, "Performed a syncronization.");
+          system ("notify-send \"Google Drive sync complete\" \"Remote is now up-to-date with local changes.\"");
         }
         sleep (2);
     }
@@ -178,7 +180,8 @@ int main()
     inotify_rm_watch(fd, wd);
     watch.cleanup(fd);
     close(fd);
-    syslog (LOG_NOTICE, "grive-daemon terminated.");
+    system ("notify-send \"Google Drive sync stopped\" \"grive-daemon was terminated. Your changes will not sync until it is restarted.\"");
+    syslog (LOG_NOTICE, "Terminated.");
     closelog();
 
     return EXIT_SUCCESS;
