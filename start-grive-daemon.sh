@@ -1,2 +1,2 @@
 #!/bin/bash
-grive-daemon
+(sleep 5; grive-daemon) &
