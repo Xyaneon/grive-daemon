@@ -5,6 +5,8 @@ A daemon to watch and sync your `~/Google Drive` folder on Linux by calling griv
 
 This project is dependent on you having already installed [grive][1]. On an Ubuntu system (where this is supported), you should probably install it from the Ubuntu Software Center.
 
+Tested to work on Ubuntu 14.04 LTS.
+
 #Dependencies#
 
 - grive
