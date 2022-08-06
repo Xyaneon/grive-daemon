@@ -1,6 +1,8 @@
 grive-daemon
 ============
 
+> This project is no longer being maintained and is now read-only.
+
 A daemon to watch and sync your `~/Google Drive` folder on Linux by calling grive.
 
 This project is dependent on you having already installed [grive][1]. On an Ubuntu system (where this is supported), you should probably install it from the Ubuntu Software Center.
